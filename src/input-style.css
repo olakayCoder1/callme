@@ -56,7 +56,7 @@
     display: none;
 }
 
-.smallFrame{
+#user-2{
     position: fixed;
     top: 20px;
     left: 20px;
@@ -110,3 +110,53 @@
             width: 20px;
         }
 }
+
+
+
+
+
+#form-container{
+    width: 90%;
+    max-width: 600px;
+    border-radius: 10px;
+    background-color: #262625;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+
+#form__container__header {
+    border-radius: 10px 10px 0 0;
+    padding: 30px;
+    text-align: center;
+    background-color: #363739;
+    margin: 0;
+    font-size: 18px;
+    font-size: 300;
+    line-height: 0;
+  }
+
+  #form__content__wrapper{
+    padding: 20px;
+}
+
+input {
+    box-sizing: border-box;
+    color: #fff;
+    width: 100%;
+    margin: 0;
+    border: none;
+    border-radius: 5px;
+    padding: 16px 20px;
+    font-size: 15px;
+    background-color: #3f434a;
+    margin-top: 32px;
+  }
+ 
+ 
+  input[type='submit'] {
+    background-color: #845695;
+ 
+  }

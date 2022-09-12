@@ -8,29 +8,30 @@
     <link rel='stylesheet' type='text/css' media='screen' href='output-style.css'>
     
 </head>
-<body class=" p-0 m-0">
+<body class=" p-0 m-0 box-border">
 
-    <div id="videos" class=" grid grid-cols-1">
-        <video class="video-player w-full h-full" id="user-1" autoplay playsinline></video>
-        <video class="video-player w-full h-full bg-yellow-200" id="user-2" autoplay playsinline></video>
+    <div id="videos">
+        <video class="video-player" id="user-1" autoplay playsinline></video>
+        <video class="video-player" id="user-2" autoplay playsinline></video>
     </div>
 
+    <div id="controls">
 
-    <div class=" fixed bottom-10 flex place-content-center w-full">
-        <div class=" w-[400px] flex justify-around items-center transform -translate-y-14">
-            <div class=" w-12 h-12 p-2 rounded-full bg-gray-600 cursor-pointer">
-                <img src="assets/audio.png" class=" w-full h-full"/>
-            </div>
-            <div class=" w-12 h-12 p-2 rounded-full bg-gray-600 cursor-pointer">
-                <img src="assets/mic.png" class=" w-full h-full"/>
-            </div>
-            <div class=" w-12 h-12 p-2 rounded-full bg-gray-600 cursor-pointer">
-                <img src="assets/phone.png"  class=" w-full h-full"/>
-            </div>
+        <div class="control-container" id="camera-btn">
+            <img src="assets/video.png" />
         </div>
-        
+
+        <div class="control-container" id="mic-btn">
+            <img src="assets/mic.png" />
+        </div>
+
+        <a href="home.html">
+            <div class="control-container" id="leave-btn">
+                <img src="assets/phone.png" />
+            </div>
+        </a>
+
     </div>
-   
     
 </body>
 <script src="agora-rtm-sdk-1.5.1.js"></script>

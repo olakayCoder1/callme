@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel='stylesheet' type='text/css' media='screen' href='output-style.css'>
+    <title>Home</title>
+</head>
+<body class=" bg-[#1a1a1a] text-white">
+
+    <main id="lobby-container">
+        <div id="form-container" class="w-[90%] mx-w-[600px] rounded-xl bg-[#262625] fixed top-2/4 left-2/4 transform -translate-x-1/2 -translate-y-2/4">
+            <div id="form__container__header" class=" p-5">
+                <p>👋 Create OR Join a Room</p>
+            </div>
+
+            <div id="form__content__wrapper">
+                <form id="join-form">
+                    <input type="text" name="invite_link" class=" box-border text-white w-full m-0 border-none rounded-md px4 py-5 bg-[#3f434a] mt-8 " required/>
+                    <input type="submit" value="Join Room" class=" bg-[#845695] cursor-pointer" />
+                </form>
+            </div>
+        </div>
+    </main>
+</body>
+<script>
+    let form = document.getElementById('join-form')
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault()
+        let inviteCode = e.target.invite_link.value
+        window.location = `index.html?room=${inviteCode}` 
+    })
+</script>
+</html>

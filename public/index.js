@@ -15,6 +15,7 @@ let roomId = urlparams.get('room')
 
 if(!roomId){
     // redirect to another page
+    window.location = `home.html` 
 }
 
 // Default configuration - Change these if you have a different STUN or TURN server.
@@ -26,104 +27,107 @@ const servers = {
     ]
 }
 
-let constraint = {
+
+let constraints = {
     video:{
-        height:{min:640,ideal:1920,max:1920},
-        hwidth:{min:480,ideal:1080,max:1080}
+        width:{min:640, ideal:1920, max:1920},
+        height:{min:480, ideal:1080, max:1080},
     },
-    audio:false
-    // audio:true
+    audio:true
 }
 
 let init = async () => {
-    // client = await AgoraRTM.createInstance(APP_ID)
-    // await client.login({uid, token })
+    client = await AgoraRTM.createInstance(APP_ID)
+    await client.login({uid, token})
 
-    // channel = client.createChannel(roomId)
-    // await channel.join()
+    channel = client.createChannel(roomId)
+    await channel.join()
 
+    channel.on('MemberJoined', handleUserJoined)
+    channel.on('MemberLeft', handleUserLeft)
 
-    // channel.on('MemberJoined', handleUserJoined)
-    // client.on('MessageFromPeer', handleMessageFromPeer)
-    // client.on('MessageLeft', handleUserLeft)
+    client.on('MessageFromPeer', handleMessageFromPeer)
 
-    localStream = await navigator.mediaDevices.getUserMedia(constraint)
-    // localStream = await navigator.mediaDevices.getUserMedia({audio:false, video:true})
-    document.getElementById('user-1').srcObject = localStream   
-    document.getElementById('user-2').srcObject = localStream   
+    localStream = await navigator.mediaDevices.getUserMedia(constraints)
+    document.getElementById('user-1').srcObject = localStream
+}
+ 
+
+let handleUserLeft = (MemberId) => {
+    document.getElementById('user-2').style.display = 'none'
+    document.getElementById('user-1').classList.remove('smallFrame')
 }
 
-let handleUserJoined = async (MemberId)=>{
-    console.log('A new user join the channel' , MemberId )
-    createOffer(MemberId)
+let handleMessageFromPeer = async (message, MemberId) => {
 
+    message = JSON.parse(message.text)
 
-}
-
-let  handleMessageFromPeer = async (message, MemberId) => {
-    message = JSON.parse(message)
     if(message.type === 'offer'){
         createAnswer(MemberId, message.offer)
     }
 
-    if(message.type === 'answer') {
+    if(message.type === 'answer'){
         addAnswer(message.answer)
     }
 
-    if(message.type === 'candidate') {
+    if(message.type === 'candidate'){
         if(peerConnection){
             peerConnection.addIceCandidate(message.candidate)
         }
     }
+
+
 }
 
-let handleUserLeft = async (MemberId) => {
-    // remove user from dom
-    // document.getElementById('user-2').style.display = 'none'
+let handleUserJoined = async (MemberId) => {
+    console.log('A new user joined the channel:', MemberId)
+    createOffer(MemberId)
 }
 
-let createPeerConnection = async (MemberId)=> {
 
+let createPeerConnection = async (MemberId) => {
     peerConnection = new RTCPeerConnection(servers)
 
     remoteStream = new MediaStream()
     document.getElementById('user-2').srcObject = remoteStream
+    document.getElementById('user-2').style.display = 'block'
+
+    document.getElementById('user-1').classList.add('smallFrame')
+
 
     if(!localStream){
-        localStream = await navigator.mediaDevices.getUserMedia({audio:false,video:true})
-        document.getElementById('user-1').srcObject = localStream  
+        localStream = await navigator.mediaDevices.getUserMedia({video:true, audio:false})
+        document.getElementById('user-2').srcObject = localStream
     }
 
     localStream.getTracks().forEach((track) => {
         peerConnection.addTrack(track, localStream)
     })
 
-    // add remote peer track 
-    peerConnection.ontrack = async (event) => {
+    peerConnection.ontrack = (event) => {
         event.streams[0].getTracks().forEach((track) => {
             remoteStream.addTrack(track)
         })
     }
 
-    peerConnection.onicecandidate = async (event)=>{
+    peerConnection.onicecandidate = async (event) => {
         if(event.candidate){
-            console.log('NEW ICE CANDIDATE' , event.candidate)
             client.sendMessageToPeer({text:JSON.stringify({'type':'candidate', 'candidate':event.candidate})}, MemberId)
         }
     }
 }
 
-
 let createOffer = async (MemberId) => {
     await createPeerConnection(MemberId)
+
     let offer = await peerConnection.createOffer()
     await peerConnection.setLocalDescription(offer)
 
     client.sendMessageToPeer({text:JSON.stringify({'type':'offer', 'offer':offer})}, MemberId)
-
 }
 
-let createAnswer = async (MemberId, offer ) => {
+
+let createAnswer = async (MemberId, offer) => {
     await createPeerConnection(MemberId)
 
     await peerConnection.setRemoteDescription(offer)
@@ -141,44 +145,39 @@ let addAnswer = async (answer) => {
     }
 }
 
-// function to handle user leaving channel
+
 let leaveChannel = async () => {
     await channel.leave()
-    await channel.logout()
+    await client.logout()
 }
 
-
-// audio, video and leave chat container 
-let toggleCamera = async()=>{
+let toggleCamera = async () => {
     let videoTrack = localStream.getTracks().find(track => track.kind === 'video')
 
     if(videoTrack.enabled){
         videoTrack.enabled = false
-        // style camera button 
-        document.getElementById('camera-btn').style.backgroundColor = 'green'
-    }
-    else if(!videoTrack.enabled){
+        document.getElementById('camera-btn').style.backgroundColor = 'rgb(255, 80, 80)'
+    }else{
         videoTrack.enabled = true
-        // style camera button 
-        document.getElementById('camera-btn').style.backgroundColor = 'red'
+        document.getElementById('camera-btn').style.backgroundColor = 'rgb(179, 102, 249, .9)'
     }
 }
 
-
-let toggleMic = async()=>{
+let toggleMic = async () => {
     let audioTrack = localStream.getTracks().find(track => track.kind === 'audio')
 
     if(audioTrack.enabled){
         audioTrack.enabled = false
-        // style camera button 
-        document.getElementById('mic-btn').style.backgroundColor = 'green'
-    }
-    else if(!audioTrack.enabled){
+        document.getElementById('mic-btn').style.backgroundColor = 'rgb(255, 80, 80)'
+    }else{
         audioTrack.enabled = true
-        // style camera button 
-        document.getElementById('mic-btn').style.backgroundColor = 'red'
+        document.getElementById('mic-btn').style.backgroundColor = 'rgb(179, 102, 249, .9)'
     }
 }
+  
+window.addEventListener('beforeunload', leaveChannel)
 
-window.addEventListener('beforeunload', leaveChannel )
+document.getElementById('camera-btn').addEventListener('click', toggleCamera)
+document.getElementById('mic-btn').addEventListener('click', toggleMic)
+
 init()
